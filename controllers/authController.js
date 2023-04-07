@@ -79,6 +79,37 @@ exports.logout = (req, res) => {
   res.status(200).json({ status: 'success' });
 };
 
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+  //Checking if it contain token or not
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+  // console.log(token);
+  if (!token) {
+    return next(new AppError('You are not logged in! Please login first', 401));
+  }
+
+  const decoded = jwt.verify(token, process.env.SECRET_KEY);
+  console.log(decoded);
+
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(
+      new AppError('User belonging to this token does no longer exists', 401)
+    );
+  }
+
+  req.user = freshUser;
+
+  next();
+});
+
 exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
     try {
@@ -96,4 +127,16 @@ exports.isLoggedIn = async (req, res, next) => {
     }
   }
   next();
+};
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    console.log(req.user);
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not permission to perform this action', 403)
+      );
+    }
+    next();
+  };
 };
