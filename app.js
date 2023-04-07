@@ -10,6 +10,7 @@ const chatRoutes = require('./routes/Chat/chatRoutes');
 const messageRoutes = require('./routes/Chat/messageRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const fileUpload = require('express-fileupload');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/message', messageRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/report', reportRoutes);
 
 //Route of global error handler
 app.use(globalErrorController);
