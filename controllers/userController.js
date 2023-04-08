@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const axios = require('axios');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.allUsers = catchAsync(async (req, res, next) => {
   const keyword = req.query.search

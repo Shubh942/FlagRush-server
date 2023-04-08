@@ -27,19 +27,46 @@ exports.flagSubmission = catchAsync(async (req, res, next) => {
   console.log(req.body);
   const { flag, ctfId } = req.body;
   const solve = await Ctf.findById(ctfId);
+  //   console.log(solve.host);
+  //   console.log(req.user._id);
+  //   if (solve.host !== req.user._id) {
+  //     console.log('-----------------------');
+  //     return res.status(201).json({
+  //       status: 'fail',
+  //       message: "You can't submit your own ctf",
+  //     });
+  //   }
+
   if (solve.flag === flag) {
+    if (solve.host == req.user._id) {
+      console.log('-----------------------');
+      return res.status(201).json({
+        status: 'fail',
+        message: "You can't submit your own ctf",
+      });
+    }
     if (solve.users.includes(req.user._id)) {
       return res.status(201).json({
         status: 'success',
-        message: 'Greetings, You sucessfully found the flag',
+        message: 'Duplicate submission',
       });
     }
+    // console.log(solve.host);
+    // console.log(req.user._id);
+
     const done = await Ctf.findByIdAndUpdate(ctfId, {
       $push: {
         users: req.user._id,
       },
     });
-    if (!done) {
+    const userCtf = await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        ctfs: ctfId,
+      },
+      $inc: { totalCtfs: 1 },
+    });
+
+    if (!done || !userCtf) {
       return next(new AppError('Please Try again', 401));
     }
     return res.status(201).json({
