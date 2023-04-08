@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const AppError = require("./../../utils/appError");
-const catchAsync = require("./../../utils/catchAsync");
-const Chat = require("./../../models/Chat/chatModel");
-const User = require("./../../models/userModel");
-const Message = require("../../models/Chat/messageModel");
+const mongoose = require('mongoose');
+const AppError = require('./../../utils/appError');
+const catchAsync = require('./../../utils/catchAsync');
+const Chat = require('./../../models/Chat/chatModel');
+const User = require('./../../models/userModel');
+const Message = require('../../models/Chat/messageModel');
 
 exports.acessChat = catchAsync(async (req, res) => {
   const { userId } = req.body;
@@ -19,19 +19,19 @@ exports.acessChat = catchAsync(async (req, res) => {
       { users: { $elemMatch: { $eq: userId } } },
     ],
   })
-    .populate("users", "-password")
-    .populate("latestMessage");
+    .populate('users', '-password')
+    .populate('latestMessage');
   // console.log(isChat);
   isChat = await User.populate(isChat, {
-    path: "latestMessage.sender",
-    select: "name email",
+    path: 'latestMessage.sender',
+    select: 'name email',
   });
 
   if (isChat.length > 0) {
     res.send(isChat[0]);
   } else {
     var chatData = {
-      chatName: "sender",
+      chatName: 'sender',
       isGroupChat: false,
       users: [req.user._id, userId],
     };
@@ -39,8 +39,8 @@ exports.acessChat = catchAsync(async (req, res) => {
     try {
       const createdChat = await Chat.create(chatData);
       const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
-        "users",
-        "-password"
+        'users',
+        '-password'
       );
       res.status(200).send(FullChat);
     } catch (error) {
@@ -55,12 +55,12 @@ exports.fetchChats = async (req, res) => {
     const chat = await Chat.find({
       isGroupChat: false,
       users: { $elemMatch: { $eq: req.user._id } },
-    }).populate("users", "-password");
+    }).populate('users', '-password');
     res.send(chat);
   } catch (error) {
     // console.log(error);
     res.status(401).json({
-      status: "fail",
+      status: 'fail',
       error,
     });
   }
@@ -86,7 +86,7 @@ exports.createGroupChat = catchAsync(async (req, res) => {
   } catch (error) {
     // console.log(error);
     res.status(401).json({
-      status: "fail",
+      status: 'fail',
       error,
     });
   }
@@ -95,8 +95,8 @@ exports.createGroupChat = catchAsync(async (req, res) => {
 exports.getAllDiscussion = catchAsync(async (req, res, next) => {
   try {
     const message = await Chat.find({ isGroupChat: true })
-      .populate("groupCreater", "name photo")
-      .populate("users", "name photo");
+      .populate('groupCreater', 'name photo')
+      .populate('users', 'name photo');
 
     res.json(message);
   } catch (error) {
@@ -112,7 +112,7 @@ exports.doVotes = catchAsync(async (req, res, next) => {
   const chatId = req.params.id;
   const userId = req.user._id;
   const vote = req.body.vote;
-  if (vote === "up") {
+  if (vote === 'up') {
     // console.log(chatId, userId, vote);
     const isPresent = await Chat.find({
       _id: chatId,
@@ -167,15 +167,15 @@ exports.doVotes = catchAsync(async (req, res, next) => {
         );
       } catch (err) {
         // console.log(err);
-        res.status(400).json({ status: "fail" });
+        res.status(400).json({ status: 'fail' });
       }
     }
     const votes = await Chat.findById(chatId).populate(
-      "downvotes upvotes",
-      "name photo"
+      'downvotes upvotes',
+      'name photo'
     );
     res.status(201).json({
-      status: "success",
+      status: 'success',
       downvotes: votes.downvotes.length,
       usersdown: votes.downvotes,
       upvotes: votes.upvotes.length,
@@ -244,11 +244,11 @@ exports.doVotes = catchAsync(async (req, res, next) => {
     }
 
     const votes = await Chat.findById(chatId).populate(
-      "downvotes upvotes",
-      "name photo"
+      'downvotes upvotes',
+      'name photo'
     );
     res.status(201).json({
-      status: "success",
+      status: 'success',
       downvotes: votes.downvotes.length,
       usersdown: votes.downvotes,
       upvotes: votes.upvotes.length,
@@ -259,12 +259,12 @@ exports.doVotes = catchAsync(async (req, res, next) => {
 
 exports.findBySlug = catchAsync(async (req, res, next) => {
   const { slug } = req.body;
-  const chats = await Chat.find({ slug: slug }).populate("users", "-password");
+  const chats = await Chat.find({ slug: slug }).populate('users', '-password');
   // .populate("latestMessage");
 
   // console.log(chats);
   res.status(200).json({
-    status: "success",
+    status: 'success',
     chat: chats,
   });
 });
