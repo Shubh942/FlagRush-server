@@ -1,6 +1,8 @@
 const catchAsync = require('../utils/catchAsync');
 const mongoose = require('mongoose');
 const User = require('../models/userModel');
+const AppError = require('../utils/appError');
+const axios = require('axios');
 
 exports.allUsers = catchAsync(async (req, res, next) => {
   const keyword = req.query.search
@@ -14,6 +16,13 @@ exports.allUsers = catchAsync(async (req, res, next) => {
   // console.log(keyword);
   const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
   res.status(201).json({ users });
+});
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.find({ name: req.params.name })
+    .populate('friends')
+    .populate('friendsRequest');
+  res.status(203).json({ user });
 });
 
 exports.addBookmark = catchAsync(async (req, res, next) => {
@@ -37,7 +46,7 @@ exports.addBookmark = catchAsync(async (req, res, next) => {
       }
     );
     return res.status(201).json({
-      status: "sucsess",
+      status: 'sucsess',
       user: bookmark,
     });
   }
@@ -49,13 +58,12 @@ exports.addBookmark = catchAsync(async (req, res, next) => {
     {
       new: true,
     }
-  ).populate("bookmarkChats", "chatName discription upvotes downvotes");
+  ).populate('bookmarkChats', 'chatName discription upvotes downvotes');
   return res.status(201).json({
-    status: "sucsess",
+    status: 'sucsess',
     user: bookmark,
   });
 });
-
 
 exports.makeFriend = catchAsync(async (req, res, next) => {
   const friendId = req.body.friendId;
@@ -88,8 +96,8 @@ exports.makeFriend = catchAsync(async (req, res, next) => {
       }
     );
     return res.status(201).json({
-      status: "sucsess",
-      message: "Friend removed sucessfully",
+      status: 'sucsess',
+      message: 'Friend removed sucessfully',
     });
   }
 
@@ -99,7 +107,7 @@ exports.makeFriend = catchAsync(async (req, res, next) => {
   });
 
   if (alreadyRequested.length > 0) {
-    return next(new AppError("You already requested to this Id ", 400));
+    return next(new AppError('You already requested to this Id ', 400));
   }
   const friend = await User.findByIdAndUpdate(
     friendId,
@@ -116,12 +124,12 @@ exports.makeFriend = catchAsync(async (req, res, next) => {
     //   status: "fail",
     //   message: "Friend request failed",
     // });
-    return next(new AppError("Friend request failed", 400));
+    return next(new AppError('Friend request failed', 400));
   }
   return res.status(201).json({
-    status: "success",
+    status: 'success',
     data: friend,
-    message: "Friend request sent",
+    message: 'Friend request sent',
   });
 });
 
@@ -136,7 +144,7 @@ exports.responseToFriendRequest = catchAsync(async (req, res, next) => {
     });
 
     if (isPresent.length < 1) {
-      return next(new AppError("You have no request from this Id", 401));
+      return next(new AppError('You have no request from this Id', 401));
     }
 
     await User.findByIdAndUpdate(
@@ -169,12 +177,12 @@ exports.responseToFriendRequest = catchAsync(async (req, res, next) => {
     );
 
     if (!friend || !friendOther) {
-      return next(new AppError("User not found", 401));
+      return next(new AppError('User not found', 401));
     }
     return res.status(201).json({
-      status: "success",
+      status: 'success',
       data: friend,
-      message: "Friend request accepted",
+      message: 'Friend request accepted',
     });
   } else {
     const friend = await User.findByIdAndUpdate(
@@ -187,9 +195,9 @@ exports.responseToFriendRequest = catchAsync(async (req, res, next) => {
       }
     );
     return res.status(201).json({
-      status: "success",
+      status: 'success',
       data: friend,
-      message: "Friend request rejected",
+      message: 'Friend request rejected',
     });
   }
 });

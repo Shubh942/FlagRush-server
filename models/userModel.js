@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const axios = require('axios');
+const AppError = require('../utils/appError');
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please tell us your name'],
+    maxlength: 20,
+    unique: true,
   },
   email: {
     type: String,
@@ -16,13 +20,30 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'default.jpg',
+    default:
+      'http://res.cloudinary.com/df4t1zu7e/image/upload/v1678403577/i9refylv9btn7xrb69gd.jpg',
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
+  friendsRequest: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   password: {
     type: String,
     required: [true, 'Please provide your password'],
@@ -39,6 +60,7 @@ const userSchema = new mongoose.Schema({
       message: 'Password and Confirm Password are not same',
     },
   },
+  bookmarkChats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -58,7 +80,6 @@ userSchema.pre('save', async function () {
 });
 
 userSchema.pre(/^find/, function (next) {
-  // this points to the current query
   this.find({ active: { $ne: false } });
   next();
 });
