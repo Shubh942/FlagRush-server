@@ -44,6 +44,13 @@ const userSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  totalCtfs: { type: Number, default: 0 },
+  ctfs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Ctf',
+    },
+  ],
   password: {
     type: String,
     required: [true, 'Please provide your password'],
