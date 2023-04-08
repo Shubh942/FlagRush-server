@@ -5,7 +5,7 @@ const authController = require('./../controllers/authController');
 
 const router = express.Router();
 
-// router.route('/:name').get(userController.getUser);
+router.route('/').get(ctfController.allCtfs);
 router
   .route('/createCtf')
   .post(authController.protect, ctfController.createCtf);

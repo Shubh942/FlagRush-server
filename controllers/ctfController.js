@@ -28,7 +28,9 @@ exports.flagSubmission = catchAsync(async (req, res, next) => {
   const solve = await Ctf.findById(ctfId);
   if (solve.flag === flag) {
     const done = await Ctf.findByIdAndUpdate(ctfId, {
-      $push: { fusers: req.user._id },
+      $push: {
+        users: req.user._id,
+      },
     });
     if (!done) {
       return next(new AppError('Please Try again', 401));
@@ -41,5 +43,13 @@ exports.flagSubmission = catchAsync(async (req, res, next) => {
   res.status(401).json({
     status: 'fail',
     message: 'Entered Flag is not correct, Please try again',
+  });
+});
+
+exports.allCtfs = catchAsync(async (req, res, next) => {
+  var data = await Ctf.find().select('-flag');
+  res.status(200).json({
+    status: 'success',
+    data: data,
   });
 });
