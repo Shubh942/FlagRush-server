@@ -12,9 +12,10 @@ const DB = process.env.DATABASE_HOST.replace(
 
 mongoose
   .connect(DB, {
-    // useNewUrlParser:true,
-    // useCreateIndex:true,
-    // useFindAndModify:false
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
   })
   .then(() => console.log(`Connection sucessfully`));
 

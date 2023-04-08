@@ -25,7 +25,7 @@ const createSendToken = (user, statusCode, res) => {
 
   // Remove password from output
   user.password = undefined;
-
+  
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -52,13 +52,12 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   // console.log(req.body)
   const { email, password } = req.body;
-
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
   }
 
   const user = await User.findOne({ email }).select('+password');
-
+  
   if (!user) {
     return next(new AppError('Invalid email or password', 401));
   }
