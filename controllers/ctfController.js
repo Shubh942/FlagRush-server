@@ -24,9 +24,16 @@ exports.createCtf = catchAsync(async (req, res, next) => {
 });
 
 exports.flagSubmission = catchAsync(async (req, res, next) => {
+  console.log(req.body);
   const { flag, ctfId } = req.body;
   const solve = await Ctf.findById(ctfId);
   if (solve.flag === flag) {
+    if (solve.users.includes(req.user._id)) {
+      return res.status(201).json({
+        status: 'success',
+        message: 'Greetings, You sucessfully found the flag',
+      });
+    }
     const done = await Ctf.findByIdAndUpdate(ctfId, {
       $push: {
         users: req.user._id,
@@ -47,7 +54,7 @@ exports.flagSubmission = catchAsync(async (req, res, next) => {
 });
 
 exports.allCtfs = catchAsync(async (req, res, next) => {
-  var data = await Ctf.find().select('-flag');
+  var data = await Ctf.find().select('-flag').populate('host', 'photo name');
   res.status(200).json({
     status: 'success',
     data: data,
