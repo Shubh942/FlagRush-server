@@ -87,3 +87,14 @@ exports.allCtfs = catchAsync(async (req, res, next) => {
     data: data,
   });
 });
+
+exports.ranking = catchAsync(async (req, res, next) => {
+  const users = await User.find()
+    .sort('-totalCtfs')
+    .limit(10)
+    .select('totalCtfs name photo ctfs');
+  res.status(200).json({
+    status: 'success',
+    users,
+  });
+});
