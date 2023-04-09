@@ -12,6 +12,8 @@ router
 router
   .route('/submitFlag')
   .post(authController.protect, ctfController.flagSubmission);
+
+router.route('/leaderboard').get(ctfController.ranking);
 // router.post('/signup', authController.signup);
 // router.post('/login', authController.login);
 // router.post('/logout', authController.logout);
