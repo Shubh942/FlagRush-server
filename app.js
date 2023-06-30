@@ -12,6 +12,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const fileUpload = require('express-fileupload');
 const reportRoutes = require('./routes/reportRoutes');
 const ctfRoutes = require('./routes/ctfRoutes');
+const contestRoutes = require('./routes/contestRoutes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/v1/message', messageRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/report', reportRoutes);
 app.use('/api/v1/ctf', ctfRoutes);
+app.use('/api/v1/contest', contestRoutes);
 
 //Route of global error handler
 app.use(globalErrorController);
